@@ -24,27 +24,6 @@ app.all('/*', (req, res) => {
   const apiPaths = ['/products', '/reviews', '/cart', '/interactions'];
   let isApiPath = apiPaths.some(apiPath => req.url.startsWith(apiPath));
 
-  if (req.url.startsWith('/qa')) {
-    axios({
-      headers: { 'Authorization': API_KEY },
-      baseURL: SDC_URL,
-      url: req.url,
-      method: req.method,
-      data: req.body
-    })
-      .then((apiResponse) => {
-        console.log('inside the API response', apiResponse);
-        res.send({
-          data: apiResponse.data,
-          status: apiResponse.status
-        });
-      })
-      .catch((err) => {
-        console.log('error in questions', err);
-        res.status(err.response.status).send('API request error.');
-      });
-  }
-
   if (isApiPath) {
     axios({
       headers: { 'Authorization': API_KEY },
@@ -64,6 +43,25 @@ app.all('/*', (req, res) => {
         res.status(err.response.status).send('API request error.');
       });
 
+  } else if (req.url.startsWith('/qa')) {
+    axios({
+      headers: { 'Authorization': API_KEY },
+      baseURL: SDC_URL,
+      url: req.url,
+      method: req.method,
+      data: req.body
+    })
+      .then((apiResponse) => {
+        console.log('inside the API response', apiResponse);
+        res.send({
+          data: apiResponse.data,
+          status: apiResponse.status
+        });
+      })
+      .catch((err) => {
+        console.log('error in questions', err);
+        res.status(err.response.status).send('API request error.');
+      });
   } else {
     axios({
       headers: { 'Authorization': API_KEY },
@@ -77,7 +75,7 @@ app.all('/*', (req, res) => {
       })
       .catch((err) => {
         console.log(err);
-        // res.redirect('/');
+        res.redirect('/');
       });
   }
 });
