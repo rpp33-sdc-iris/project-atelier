@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const axios = require('axios');
 const cors = require('cors');
 const port = 3000;
-const { API_URL, API_KEY } = require('./config.js');
+const { API_URL, REVIEWS_URL, API_KEY } = require('./config.js');
 
 app.use(cors());
 app.use(bodyParser.urlencoded({extended: true}));
@@ -14,7 +14,8 @@ app.use(express.static(path.join(__dirname, '../client/dist')));
 
 app.all('/*', (req, res) => {
 
-  const apiPaths = ['/products', '/reviews', '/qa', '/cart', '/interactions'];
+  const apiPaths = ['/products', '/qa', '/cart', '/interactions'];
+  const reviewsPath = '/reviews';
   let isApiPath = apiPaths.some(apiPath => req.url.startsWith(apiPath));
 
   if (isApiPath) {
@@ -34,6 +35,25 @@ app.all('/*', (req, res) => {
       .catch((err) => {
         console.log(err);
         res.status(err.response.status).send('API request error.');
+      });
+
+  } else if (req.url.startsWith(reviewsPath)) {
+    axios({
+      // headers: { 'Authorization': API_KEY },
+      baseURL: REVIEWS_URL,
+      url: req.url,
+      method: req.method,
+      data: req.body
+    })
+      .then((apiResponse) => {
+        res.send({
+          data: apiResponse.data,
+          status: apiResponse.status
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(err.response.status).send('Reviews API request error.');
       });
 
   } else {
